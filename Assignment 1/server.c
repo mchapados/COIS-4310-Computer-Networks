@@ -65,83 +65,31 @@ int main(int argc, const char * argv[]) {
     // loop looking for messages
     while (1) {
         // accept connection from user 1
-        if ((user1 = accept(sock, (struct sockaddr*) &cli, &cli_len) < 0)) {
+        user1 = accept(sock, (struct sockaddr*) &cli, &cli_len);
+        if (user1 < 0) {
             perror("accept call failed");
             exit(1);
         }
-        printf("User 1 has connected. Waiting for second user...\n");
+        //printf("User 1 has connected. Waiting for second user...\n");
         
         // accept connection from user 2
-        if ((user2 = accept(sock, (struct sockaddr*) &cli, &cli_len)) < 0) {
-            perror("accept call failed");
-            exit(1);
-        }
-        printf("User 2 has connected. Ready to send messages!\n");
+        // if ((user2 = accept(sock, (struct sockaddr*) &cli, &cli_len)) < 0) {
+        //     perror("accept call failed");
+        //     exit(1);
+        // }
+        // printf("User 2 has connected. Ready to send messages!\n");
 
+        // create child to deal with connection
         if (fork() == 0) {
-            while (1)
-            {
-                while (recv(user1, &input, 512, 0) > 0) {
-                    send(user2, &input, 512, 0);
-                }
-                while (recv(user2, &input, 512, 0))
-                {
-                    send(user1, &input, 512, 0);
-                }
+            while (recv(user1, &input, 512, 0) > 0) {
+                send(user1, &input, 512, 0);
             }
+            close(user1);
         }
         else {
             close(user1);
-            close(user2);
+            //close(user2);
         }
-
-        // create children to deal with connections
-        // if (fork() == 0) { // user 1
-        //     // receive messages
-        //     while (read(user1, &input, 512) > 0) {
-        //         output.version = 1;
-        //         if (input.verb == 1) { // login request
-        //             strcpy(output.source, "Server");
-        //             strcpy(output.destination, input.source);
-        //             strcpy(output.data, strcat("Welcome ", input.source));
-        //             write(user1, &output, 512);
-        //         }
-        //         else if (input.verb == 5) {
-        //             break;
-        //         }
-        //         else { // message to all
-        //             write(user2, &input, 512);
-        //         }
-        //     }
-        //     // when client stops sending, close socket and child
-        //     close(user1);
-        //     exit(0);
-        // }
-        // else if (fork() == 0) { // user 2
-        //     // receive messages
-        //     while (read(user2, &input, 512) > 0) {
-        //         output.version = 1;
-        //         if (input.verb == 1) { // login request
-        //             strcpy(output.source, "Server");
-        //             strcpy(output.destination, input.source);
-        //             strcpy(output.data, strcat("Welcome ", input.source));
-        //             write(user2, &output, 512);
-        //         }
-        //         else if (input.verb == 5) {
-        //             break;
-        //         }
-        //         else { // message to all
-        //             write(user1, &input, 512);
-        //         }
-        //     }
-        //     // when client stops sending, close socket and child
-        //     close(user2);
-        //     exit(0);
-        // }
-        // else {
-        //     close(user1);
-        //     close(user2);
-        // }
     }
     return 0;
 }

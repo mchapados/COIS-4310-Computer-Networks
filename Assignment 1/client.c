@@ -35,11 +35,20 @@ int main(int argc, const char * argv[]) {
     struct packet input, output;
     char username[50];
     int logged_in = 0;
+    int i;
 
     // start login request
     printf("Enter a username => ");
-    scanf("%s", username);
-    input.verb = 1;
+    fgets(username, 50, stdin);
+    // remove new line from username
+    for (i = 0; i < 50; i++)
+    {
+        if (username[i] == '\n') {
+            username[i] = '\0';
+            break;
+        }
+    }
+    printf("Welcome %s\n", username);
 
     // create socket
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -56,62 +65,31 @@ int main(int argc, const char * argv[]) {
         exit(1);
     }
 
-    
+    // send and receive messages
+    while (1) {
+        input.version = 1;
         strcpy(input.source, username);
-        printf("Message: ");
-        fgets(input.data, 256, stdin);
-
-        // check for exit condition
-        if (strncmp(input.data, "bye", 3) == 0) {
+        printf("Send message to: ");
+        fgets(input.destination, 50, stdin);
+        if (strncmp(input.destination, "bye", 3) == 0) { // end loop
             printf("Sorry to see you go\n");
             exit(0);
         }
-
+        printf("Message: ");
+        fgets(input.data, 256, stdin);
+        if (strncmp(input.destination, "all", 3) == 0)
+            input.verb = 2;
+        else
+            input.verb = 3;
+        printf("Sending message...\n");
         send(sock, &input, 512, 0);
+        printf("Message sent\n");
         if (recv(sock, &output, 512, 0) > 0)
             printf("%s: %s\n", output.source, output.data);
         else {
             printf("Server has died\n");
             close(sock);
             exit(1);
-        }
-    
-    
-
-
-    // // send login request
-    // write(sock, &input, 512);
-
-    // // send and receive messages
-    // while (read(sock, &output, 512) > 0) {
-    //     // print message from server
-    //     printf("%s: %s\n", output.source, output.data);
-        
-    //     input.version = 1;
-    //     strcpy(input.source, username);
-    //     printf("Send message to: "); // username, all, or bye
-    //     scanf("%s", input.destination);
-
-    //     // check for exit condition
-    //     if (strncmp(input.destination, "bye", 3) == 0) {
-    //         input.verb = 5;
-    //         write(sock, &input, 512); // notify server that user has left
-    //         printf("Sorry to see you go\n");
-    //         exit(0);
-    //     }
-        
-    //     // get message to send
-    //     printf("Message: "); 
-    //     fgets(input.data, 256, stdin);
-    //     if (strncmp(input.destination, "all", 3) == 0)
-    //         input.verb = 2; // message to all
-    //     else
-    //         input.verb = 3; // private message
-        
-    //     // send to server
-    //     write(sock, &input, 512);
-    // }
-    // printf("Server has died\n");
-    // close(sock);
-    // exit(1); 
+        } 
+    }    
 }
