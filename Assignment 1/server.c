@@ -38,6 +38,7 @@ int main(int argc, const char * argv[]) {
     struct sockaddr_in cli; // used by accept()
     int cli_len = sizeof(cli); // used by accept()
     struct packet input, output;
+    int not_done = 1;
 
     signal(SIGPIPE, catcher);
     
@@ -73,22 +74,31 @@ int main(int argc, const char * argv[]) {
         //printf("User 1 has connected. Waiting for second user...\n");
         
         // accept connection from user 2
-        // if ((user2 = accept(sock, (struct sockaddr*) &cli, &cli_len)) < 0) {
-        //     perror("accept call failed");
-        //     exit(1);
-        // }
+        user2 = accept(sock, (struct sockaddr*) &cli, &cli_len);
+        if (user2 < 0) {
+            perror("accept call failed");
+            exit(1);
+        }
         // printf("User 2 has connected. Ready to send messages!\n");
 
         // create child to deal with connection
         if (fork() == 0) {
-            while (recv(user1, &input, 512, 0) > 0) {
-                send(user1, &input, 512, 0);
+            while (not_done) {
+                if (recv(user1, &input, 512, 0) > 0) 
+                    send(user2, &input, 512, 0);
+                else
+                    not_done = 0;
+                if (recv(user2, &input, 512, 0) > 0) 
+                    send(user1, &input, 512, 0);
+                else
+                    not_done = 0;
             }
             close(user1);
+            close(user2);
         }
         else {
             close(user1);
-            //close(user2);
+            close(user2);
         }
     }
     return 0;
