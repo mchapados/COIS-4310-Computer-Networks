@@ -1,11 +1,11 @@
 /*
   
- COIS 4310H ASSIGNMENT #1
- NAME: client.c
+ COIS 4310H ASSIGNMENT #1 - CHAT APPLICATION
+ FILENAME: client.c
 
  WRITTEN BY: Sabrina Chapados - Jan-Feb, 2021
  
- PURPOSE: 
+ PURPOSE: Runs a client, which connects to the server to allow for two-way communication with a second client. 
  USAGE: ./client
  PARAMETERS: NONE
  
@@ -17,7 +17,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <signal.h>
-#include <ctype.h>
 #include <string.h>
 #define PACKET_SIZE 512
 
@@ -27,14 +26,14 @@ int main(int argc, const char * argv[]) {
         int number; // packet number
         int version; // 1=Assignment 1, 2=Assignment 2, etc.
         char source[50]; // username sending the message
-        char destination[50]; // receiver of message (all or username)
+        char destination[50]; // receiver of message (all, username, who, or bye)
         int verb; // 1=login, 2=messageAll, 3=privateMessage, 4=who, 5=quit, 6=wait
         char data[256]; // content of the message
     };
     int sock; // socket descriptor
     struct sockaddr_in srv; // used by connect()
     struct packet input, output; // packet to send, packet received from server
-    char username[50], msg_input[307]; // username of this client, string input (destination:message)
+    char username[50]; // username of this client
     int logged_in = 0;
     int i; // iterator
 

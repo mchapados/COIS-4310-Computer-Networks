@@ -1,14 +1,14 @@
 /*
   
- COIS 4310H ASSIGNMENT #1
- NAME: server.c
+ COIS 4310H ASSIGNMENT #1 - CHAT APPLICATION
+ FILENAME: server.c
 
  WRITTEN BY: Sabrina Chapados - Jan-Feb, 2021
  
- PURPOSE: 
+ PURPOSE: Runs a chat server using sockets for communication between two clients.
  USAGE: ./server &
  PARAMETERS: NONE
- 
+
 */
 
 #include <stdio.h>
@@ -17,7 +17,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <signal.h>
-#include <ctype.h>
 #include <string.h>
 #define PACKET_SIZE 512
 #define MAX_USERS 2
@@ -87,17 +86,11 @@ int main(int argc, const char * argv[]) {
 
         // create child to deal with connection
         if (fork() == 0) {
-            // output.version = 1;
-            // strcpy(output.source, "Server");
-            // strcpy(output.data, "Please login");
-            // output.verb = 0;
-            // send(user0, &output, PACKET_SIZE, 0);
-            // strcpy(output.data, "Please wait");
-            // output.verb = 6;
-            // send(user1, &output, PACKET_SIZE, 0);
             while (not_done) {
+                output.version = 1;
                 // get message from user 0
                 if (recv(user0, &input, PACKET_SIZE, 0) > 0) {
+                    printf("Received message from User 0: %s\nVerb: %d\n", usernames[0], input.verb);
                     // login request
                     if (input.verb == 1) { 
                         strcpy(usernames[0], input.source); // store username
@@ -145,11 +138,14 @@ int main(int argc, const char * argv[]) {
                         send(user0, &output, PACKET_SIZE, 0);
                     }
                 }
-                else
+                else {
+                    printf("User 0 has stopped sending\n");
                     not_done = 0;
-                
+                }
+
                 // get message from user 1
                 if (recv(user1, &input, PACKET_SIZE, 0) > 0) {
+                    printf("Received message from User 1: %s\nVerb: %d\n", usernames[1], input.verb);
                     // login request
                     if (input.verb == 1) { 
                         strcpy(usernames[1], input.source); // store username
@@ -199,8 +195,10 @@ int main(int argc, const char * argv[]) {
                         send(user1, &output, PACKET_SIZE, 0);
                     }
                 }
-                else
+                else {
+                    printf("User 1 has stopped sending\n");
                     not_done = 0;
+                }
             }
             close(user0);
             close(user1);
