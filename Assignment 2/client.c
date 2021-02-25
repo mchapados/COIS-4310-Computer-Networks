@@ -38,7 +38,7 @@ int main(int argc, const char * argv[]) {
     };
     int sock; // socket descriptor
     struct sockaddr_in srv; // used by connect()
-    struct packet input, output; // packet to send, packet received from server
+    struct packet input, output, prev; // packet to send, packet from server, input copy
     char username[25]; // username of this client
     int logged_in = 0, packet_count = 0;
     int i; // iterator
@@ -98,7 +98,9 @@ int main(int argc, const char * argv[]) {
         }
         
         // wait for responce from server
-        do {
+        output.verb = 6;
+        while (output.verb == 6 || output.verb == 7) {
+            printf("Waiting for responce...\n");
             if (recv(sock, &output, PACKET_SIZE, 0) > 0) {
                 printf("Message from %s:\n  %s\n", output.source, output.data);
                 if (output.verb == 6) // wait
@@ -106,8 +108,8 @@ int main(int argc, const char * argv[]) {
                 // NAK - resend last packet
                 else if (output.verb == 7) { 
                     printf("Re-sending last message...\n");
-                    input.checksum = CheckSum(input.data, 0); // not corruptible this time
-                    send(sock, &input, PACKET_SIZE, 0);
+                    prev.checksum = CheckSum(prev.data, 0); // not corruptible this time
+                    send(sock, &prev, PACKET_SIZE, 0);
                 }
             }
             else {
@@ -115,7 +117,7 @@ int main(int argc, const char * argv[]) {
                 close(sock);
                 exit(1);
             } 
-        } while (output.verb == 6 || output.verb == 7);
+        }
 
         // get message destination input from user
         printf("Send message to: ");
@@ -147,6 +149,7 @@ int main(int argc, const char * argv[]) {
             fgets(input.data, 256, stdin);
             input.checksum = CheckSum(input.data, 1); // can be corrupted
             printf("Sending message...\n");
+            prev = input; // save copy of packet
             send(sock, &input, PACKET_SIZE, 0);
         }
     } // end while (message loop)    

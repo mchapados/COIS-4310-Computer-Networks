@@ -24,7 +24,6 @@
 // FUNCTIONS -----------------------------------------------------------------------------------
 void catcher(int sig);
 int ConnectUser();
-int GetMessage(int user);
 struct packet Login(int user, struct packet in);
 void Quit(int user);
 void Who(int user);
@@ -50,7 +49,7 @@ int cli_len = sizeof(cli); // used by accept()
 
 // MAIN ----------------------------------------------------------------------------------------
 int main(int argc, const char * argv[]) {
-    int not_done = 1;
+    struct packet input, output; // packet from client, packet to send from server
     signal(SIGPIPE, catcher);
     
     // create socket
@@ -76,6 +75,7 @@ int main(int argc, const char * argv[]) {
 
     // loop looking for messages
     while (1) {
+        printf("Waiting for clients...\n");
         // accept connection from user 0
         user0 = ConnectUser();
         printf("User 0 has connected. Waiting for second user...\n");
@@ -86,11 +86,66 @@ int main(int argc, const char * argv[]) {
 
         // create child to deal with connection
         if (fork() == 0) {
-            while (not_done) {
-                if (!GetMessage(0)) // get message from user 0
-                    not_done = 0;
-                if (!GetMessage(1)) // get message from user 1
-                    not_done = 0;
+            while (1) {
+                printf("Getting message from User 0\n");
+                //GetMessage(0); // get message from user 0
+                while (recv(user0, &input, PACKET_SIZE, 0) > 0) {
+                    printf("Received packet %d with verb %d from User 0\n", input.number, input.verb);
+                    if (input.verb == 1) { // login request
+                        printf("Processing login  request...\n");
+                        output = Login(0, input);
+                        printf("Sending response...\n");
+                        send(user0, &output, PACKET_SIZE, 0); 
+                        printf("Response sent!\n");
+                        break;
+                    }
+                    else if (input.verb == 5) { // user has disconnected
+                        Quit(0);
+                        exit(0);
+                        break;
+                    }
+                    else if (input.verb == 4) { // who request
+                        Who(0);
+                        break;
+                    }
+                    else { // regular message
+                        output = Message(0, input);
+                        send(user0, &output, PACKET_SIZE, 0);
+                        if (output.verb != 7)
+                            break; // loop until packet is successfully received
+                    }
+                } // end loop for user 0
+
+                printf("Getting message from User 1\n");
+                //GetMessage(1); // get message from user 1
+                while (recv(user1, &input, PACKET_SIZE, 0) > 0) {
+                    printf("Received packet %d with verb %d from User 1\n", input.number, input.verb);
+                    if (input.verb == 1) { // login request
+                        printf("Processing login  request...\n");
+                        output = Login(1, input);
+                        printf("Sending response...\n");
+                        send(user1, &output, PACKET_SIZE, 0);
+                        output.verb = 0; // tell user 0 to stop waiting
+                        send(user0, &output, PACKET_SIZE, 0);
+                        printf("Response sent!\n");
+                        break;
+                    }
+                    else if (input.verb == 5) { // user has disconnected
+                        Quit(1);
+                        exit(0);
+                        break;
+                    }
+                    else if (input.verb == 4) { // who request
+                        Who(1);
+                        break;
+                    }
+                    else { // regular message
+                        output = Message(1, input);
+                        send(user1, &output, PACKET_SIZE, 0);
+                        if (output.verb != 7)
+                            break;
+                    }
+                } // end loop for user 1
             }
             close(user0);
             close(user1);
@@ -131,47 +186,6 @@ int ConnectUser() {
 }
 
 /*  --------------------------------------------------------------------------------------------
-    FUNCTION: GetMessage
-    DESCRIPTION: Used to send and receive messages. Returns false if recv() fails.
-    PARAMETERS:
-        user int containing the user number to get a message from
-    RETURNS: int (bool)
-*/
-int GetMessage(int user) {
-    struct packet input, output; // packet from client, packet to send from server
-    int user_socket = (user == 0) ? user0 : user1;
-    if (recv(user_socket, &input, PACKET_SIZE, 0) > 0) {
-        printf("Received packet %d with verb %d from User: %s\n", input.number, input.verb, usernames[user]);
-        switch (input.verb) {
-            case 1: // login request
-                output = Login(user, input);
-                send(user_socket, &output, PACKET_SIZE, 0);
-                break;
-            case 5: // user has disconnected
-                Quit(0);
-                break;
-            case 4: // who request
-                Who(0);
-                break;
-            case 2: case 3: // regular message
-                output = Message(user, input);
-                send(user_socket, &output, PACKET_SIZE, 0);
-                if (output.verb == 7)
-                    GetMessage(user); // loop until packet is successfully received
-                break;
-            default:
-                break;
-        } // end switch
-    }
-    else {
-        printf("User %d has stopped sending\n", user);
-        return 0;
-    }
-    return 1;
-}
-
-
-/*  --------------------------------------------------------------------------------------------
     FUNCTION: Login
     DESCRIPTION: Processes login requests. Saves the client's username and returns an ACK 
     packet from the server.
@@ -202,10 +216,9 @@ struct packet Login(int user, struct packet in) {
 void Quit(int user) {
     struct packet out;
     out.version = 2;
-    char msg[] = usernames[user];
-    strcat(msg, " has quit.");
     strcpy(out.source, "Server");
-    strcpy(out.data, msg);
+    strcpy(out.data, usernames[user]);
+    strcat(out.data, " has quit.");
     if (user == 0) // notify other user
         send(user1, &out, PACKET_SIZE, 0);
     else
@@ -213,7 +226,6 @@ void Quit(int user) {
     // close sockets
     close(user0);
     close(user1);
-    exit(0);
 }
 
 /*  --------------------------------------------------------------------------------------------
@@ -303,6 +315,7 @@ int CheckSum(char msg[], int value) {
     int sum = 0, i;
     for (i = 0; i < strlen(msg); ++i) // calculate the sum 
         sum += (int) msg[i];
+    printf("CheckSum: %d, Packet Value: %d\n", sum, value);
     // return true if value is equal to sum
     return (value == sum) ? 1 : 0;
 }
