@@ -1,0 +1,114 @@
+
+--- SERVER --------------------------------------------------------------------
+[schapadoswlodarczyk@loki 1]$ ./server
+User 0 has connected. Waiting for second user...
+User 1 has connected. Ready to send messages!
+Received message from User 0:
+Verb: 1
+Received message from User 1:
+Verb: 1
+Received message from User 0: abbey
+Verb: 2
+Received message from User 1: cat
+Verb: 2
+Received message from User 0: abbey
+Verb: 4
+Received message from User 1: cat
+Verb: 2
+Received message from User 0: abbey
+Verb: 2
+Received message from User 1: cat
+Verb: 4
+Received message from User 0: abbey
+Verb: 2
+Received message from User 1: cat
+Verb: 5
+accept call failed: Socket operation on non-socket
+^C
+[schapadoswlodarczyk@loki 1]$
+
+
+--- CLIENT 1 ------------------------------------------------------------------
+[schapadoswlodarczyk@loki 1]$ ./client
+Enter a username => abbey
+Logging in...
+Message from Server:
+  Welcome abbey
+Waiting for messages...
+Message from Server:
+  Welcome cat
+Send message to: all
+Message: Hi, this is the first client
+Sending message...
+Message from Server:
+  Message sent.
+Waiting for messages...
+Message from cat:
+  Hello from the second client!
+
+Send message to: who
+Sending request to server...
+Message from Server:
+  Connected users: abbey, cat
+Waiting for messages...
+Message from cat:
+  I think cats are the cutest animal, do you agree?
+
+Send message to: cat
+Message: Of course, cats are wonderful!
+Sending message...
+Message from Server:
+  Message sent.
+Waiting for messages...
+Message from Server:
+  Please send a message.
+Send message to: all
+Message: I'm getting bored of this conversation...
+Sending message...
+Message from Server:
+  Message sent.
+Waiting for messages...
+Message from Server:
+  cat has quit.
+Waiting for messages...
+Server has died
+[schapadoswlodarczyk@loki 1]$
+
+--- CLIENT 2 ------------------------------------------------------------------
+[schapadoswlodarczyk@loki 1]$ ./client
+Enter a username => cat
+Logging in...
+Message from Server:
+  Welcome cat
+Waiting for messages...
+Message from abbey:
+  Hi, this is the first client
+
+Send message to: abbey
+Message: Hello from the second client!
+Sending message...
+Message from Server:
+  Message sent.
+Waiting for messages...
+Message from Server:
+  Please send a message.
+Send message to: all
+Message: I think cats are the cutest animal, do you agree?
+Sending message...
+Message from Server:
+  Message sent.
+Waiting for messages...
+Message from abbey:
+  Of course, cats are wonderful!
+
+Send message to: who
+Sending request to server...
+Message from Server:
+  Connected users: abbey, cat
+Waiting for messages...
+Message from abbey:
+  I'm getting bored of this conversation...
+
+Send message to: bye
+Sorry to see you go
+[schapadoswlodarczyk@loki 1]$
