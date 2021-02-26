@@ -87,16 +87,13 @@ int main(int argc, const char * argv[]) {
         // create child to deal with connection
         if (fork() == 0) {
             while (1) {
+                // get message from user 1
                 printf("Getting message from User 0\n");
-                //GetMessage(0); // get message from user 0
                 while (recv(user0, &input, PACKET_SIZE, 0) > 0) {
                     printf("Received packet %d with verb %d from User 0\n", input.number, input.verb);
                     if (input.verb == 1) { // login request
-                        printf("Processing login  request...\n");
                         output = Login(0, input);
-                        printf("Sending response...\n");
                         send(user0, &output, PACKET_SIZE, 0); 
-                        printf("Response sent!\n");
                         break;
                     }
                     else if (input.verb == 5) { // user has disconnected
@@ -116,18 +113,15 @@ int main(int argc, const char * argv[]) {
                     }
                 } // end loop for user 0
 
-                printf("Getting message from User 1\n");
-                //GetMessage(1); // get message from user 1
+                // get message from user 1
+                printf("Getting message from User 1\n"); 
                 while (recv(user1, &input, PACKET_SIZE, 0) > 0) {
                     printf("Received packet %d with verb %d from User 1\n", input.number, input.verb);
                     if (input.verb == 1) { // login request
-                        printf("Processing login  request...\n");
                         output = Login(1, input);
-                        printf("Sending response...\n");
                         send(user1, &output, PACKET_SIZE, 0);
                         output.verb = 0; // tell user 0 to stop waiting
                         send(user0, &output, PACKET_SIZE, 0);
-                        printf("Response sent!\n");
                         break;
                     }
                     else if (input.verb == 5) { // user has disconnected
@@ -265,7 +259,8 @@ void Who(int user) {
 
 /*  --------------------------------------------------------------------------------------------
     FUNCTION: Message
-    DESCRIPTION: 
+    DESCRIPTION: Processes regular chat messages from users. Calls CheckSum to check packet for
+    corruption. Relays message to other user if okay. Returns ACK or NAK packet.
     PARAMETERS:
         from int containing the user number of the sender
         in packet containing the message received from the user
@@ -279,12 +274,7 @@ struct packet Message(int from, struct packet in) {
     if (CheckSum(in.data, in.checksum) > 0) { // message is not corrupted
         // relay message to other user
         strcpy(out.source, usernames[from]);
-        if (in.verb == 3) {
-            strcpy(out.data, "(private message) ");
-            strcat(out.data, in.data);
-        }
-        else
-            strcpy(out.data, in.data);
+        strcpy(out.data, in.data);
         out.verb = in.verb;
         send(to, &out, PACKET_SIZE, 0);
         // tell sender to wait

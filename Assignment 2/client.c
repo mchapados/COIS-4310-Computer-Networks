@@ -100,9 +100,11 @@ int main(int argc, const char * argv[]) {
         // wait for responce from server
         output.verb = 6;
         while (output.verb == 6 || output.verb == 7) {
-            printf("Waiting for responce...\n");
             if (recv(sock, &output, PACKET_SIZE, 0) > 0) {
-                printf("Message from %s:\n  %s\n", output.source, output.data);
+                if (output.verb == 3)
+                    printf("Private message from %s:\n  %s\n", output.source, output.data);
+                else
+                    printf("Message from %s:\n  %s\n", output.source, output.data);
                 if (output.verb == 6) // wait
                     printf("\nWaiting for messages...\n");
                 // NAK - resend last packet
@@ -168,7 +170,7 @@ int CheckSum(char msg[], int corruptible) {
     int sum = 0, i;
     if (corruptible) {
         srand(time(0)); // seed for random number
-        if ((rand() % 10) == 7) // 10% chance of corrupting the packet
+        if ((rand() % 10) == 1) // 10% chance of corrupting the packet
             return 1984;
     }
     for (i = 0; i < strlen(msg); ++i) 

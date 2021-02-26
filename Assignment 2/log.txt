@@ -1,0 +1,201 @@
+Note: I temporarily changed the code to corrupt packets with a 1/3 probability
+to get more during testing. Final code corrupts packets with 10% probability.
+
+--- SERVER --------------------------------------------------------------------
+[schapadoswlodarczyk@loki 2]$ ./server
+Waiting for clients...
+User 0 has connected. Waiting for second user...
+User 1 has connected. Ready to send messages!
+Waiting for clients...
+Getting message from User 0
+Received packet 1 with verb 1 from User 0
+Getting message from User 1
+Received packet 1 with verb 1 from User 1
+Getting message from User 0
+Received packet 2 with verb 2 from User 0
+CheckSum: 1942, Packet Value: 1942
+Getting message from User 1
+Received packet 2 with verb 3 from User 1
+CheckSum: 2679, Packet Value: 1984
+Packet number 2 is corrupted.
+Received packet 2 with verb 3 from User 1
+CheckSum: 2679, Packet Value: 2679
+Getting message from User 0
+Received packet 3 with verb 2 from User 0
+CheckSum: 4111, Packet Value: 4111
+Getting message from User 1
+Received packet 3 with verb 2 from User 1
+CheckSum: 4532, Packet Value: 4532
+Getting message from User 0
+Received packet 4 with verb 3 from User 0
+CheckSum: 817, Packet Value: 1984
+Packet number 4 is corrupted.
+Received packet 4 with verb 3 from User 0
+CheckSum: 817, Packet Value: 817
+Getting message from User 1
+Received packet 4 with verb 2 from User 1
+CheckSum: 674, Packet Value: 1984
+Packet number 4 is corrupted.
+Received packet 4 with verb 2 from User 1
+CheckSum: 674, Packet Value: 674
+Getting message from User 0
+Received packet 5 with verb 2 from User 0
+CheckSum: 1408, Packet Value: 1408
+Getting message from User 1
+Received packet 5 with verb 4 from User 1
+Getting message from User 0
+Received packet 6 with verb 2 from User 0
+CheckSum: 2488, Packet Value: 2488
+Getting message from User 1
+Received packet 6 with verb 5 from User 1
+^C
+[schapadoswlodarczyk@loki 2]$
+
+--- CLIENT 1 ------------------------------------------------------------------
+[schapadoswlodarczyk@loki 2]$ ./client
+----------------------------------------------------------------------
+ Welcome to the chat application!
+ Please enter a username (max 25 characters) => abbey
+----------------------------------------------------------------------
+                             INSTRUCTIONS
+----------------------------------------------------------------------
+ Enter commands in the TO field (commands must be lower case)
+   - DISCONNECT: bye
+   - GET LIST OF CONNECTED USERS: who
+   - SEND MESSAGE TO ALL USERS: all
+   - SEND PRIVATE MESSAGE: recipient username
+----------------------------------------------------------------------
+Logging in...
+Message from Server:
+  Welcome abbey
+
+Waiting for messages...
+Message from Server:
+  Welcome cat
+Send message to: all
+Message: hi from first client
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Private message from cat:
+  hi, this is the second client
+
+Send message to: all
+Message: I wonder if this message will be corrupted...
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Message from cat:
+  Looks like it went through. What about this one...
+
+Send message to: cat
+Message: soooon...
+Sending message...
+Message from Server:
+  Message not received. Please try again.
+Re-sending last message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Message from cat:
+  maybe...
+
+Send message to: all
+Message: yay, it works! :)
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Message from Server:
+  Please send a message.
+
+Send message to: all
+Message: should we do more testing?
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Message from Server:
+  cat has quit.
+
+Waiting for messages...
+Server has died
+[schapadoswlodarczyk@loki 2]$
+
+--- CLIENT 2 ------------------------------------------------------------------
+[schapadoswlodarczyk@loki 2]$ ./client
+----------------------------------------------------------------------
+ Welcome to the chat application!
+ Please enter a username (max 25 characters) => cat
+----------------------------------------------------------------------
+                             INSTRUCTIONS
+----------------------------------------------------------------------
+ Enter commands in the TO field (commands must be lower case)
+   - DISCONNECT: bye
+   - GET LIST OF CONNECTED USERS: who
+   - SEND MESSAGE TO ALL USERS: all
+   - SEND PRIVATE MESSAGE: recipient username
+----------------------------------------------------------------------
+Logging in...
+Message from Server:
+  Welcome cat
+
+Waiting for messages...
+Message from abbey:
+  hi from first client
+
+Send message to: abbey
+Message: hi, this is the second client
+Sending message...
+Message from Server:
+  Message not received. Please try again.
+Re-sending last message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Message from abbey:
+  I wonder if this message will be corrupted...
+
+Send message to: all
+Message: Looks like it went through. What about this one...
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Private message from abbey:
+  soooon...
+
+Send message to: all
+Message: maybe...
+Sending message...
+Message from Server:
+  Message not received. Please try again.
+Re-sending last message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Message from abbey:
+  yay, it works! :)
+
+Send message to: who
+Sending request to server...
+Message from Server:
+  Connected users: abbey, cat
+
+Waiting for messages...
+Message from abbey:
+  should we do more testing?
+
+Send message to: bye
+Sorry to see you go
+[schapadoswlodarczyk@loki 2]$
