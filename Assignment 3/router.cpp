@@ -30,3 +30,33 @@ void Router::setAddress(string ip) {
         // address does not change if invalid
     }
 }
+
+void Router::updateTable(int row, int col, int val) {
+    if (row < table.size()) {
+        if (col < table.at(row).size())
+            table.at(row).at(col) = val;
+        else
+            table.at(row).push_back(val);
+    }
+}
+
+void Router::updateTable(int row, vector<int> val) {
+    if (row < table.size())
+        table.at(row) = val;
+    else
+        table.push_back(val);
+}
+
+void Router::printTable() {
+    cout << "\n";
+    for (int i = 0; i < table.size(); ++i) {
+        for (int j = 0; j < table.at(i).size(); ++j) { 
+            cout << table.at(i).at(j) << " ";
+        }
+        cout << "\n";
+    }
+}
+
+string Router::toString() {
+    return "ID: " + to_string(id) + "\nName: " + name + "\nAddress: " + address;
+}

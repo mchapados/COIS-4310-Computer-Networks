@@ -17,6 +17,7 @@ using namespace std;
 class Network {
     private:
         vector<Router> routers;
+        int size;
         int getRouterID(string name);
         void distanceVector(Router source);
     public:
@@ -25,7 +26,7 @@ class Network {
         vector<Router> getRouters() { return routers; } // getter method
         void addRouter(Router r); // add a router to the network
         void addLink(string from, string to, int cost); // add a link between two routers
-        string printRoutingTable();
+        void printRoutingTable();
 };
 
 #endif

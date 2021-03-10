@@ -8,7 +8,26 @@
 		"files.associations": {
 			"vector": "cpp",
 			"iosfwd": "cpp",
-			"iterator": "cpp"
+			"iterator": "cpp",
+			"iostream": "cpp"
 		}
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "g++ - Build and debug active file",
+				"type": "cppdbg",
+				"request": "launch",
+				"program": "${fileDirname}/${fileBasenameNoExtension}",
+				"args": [],
+				"stopAtEntry": false,
+				"cwd": "${workspaceFolder}",
+				"environment": [],
+				"externalConsole": false,
+				"MIMode": "lldb",
+				"preLaunchTask": "C/C++: g++ build active file"
+			}
+		]
 	}
 }

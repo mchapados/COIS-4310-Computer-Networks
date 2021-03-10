@@ -32,6 +32,11 @@ class Router {
         void setTable(vector< vector<int> > newTable) { table = newTable; }
         int getID() { return id; }
         void setID(int newID) { id = newID; }
+
+        void updateTable(int row, int col, int val);
+        void updateTable(int row, vector<int> val);
+        void printTable();
+        string toString();
 };
 
 #endif

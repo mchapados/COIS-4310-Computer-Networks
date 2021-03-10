@@ -12,11 +12,15 @@
 #include <vector>
 #include <regex> // to check if a string is an IP address
 #include <cmath> // for infinity and min function
+#include <iostream> // for debugging
+#define MAX_ROUTERS 100
 using namespace std;
 
 // constructor
 Network::Network() {
     routers = vector<Router>();
+    //routers.reserve(MAX_ROUTERS);
+    size = 0;
 }
 
 // Destructor
@@ -32,34 +36,43 @@ int Network::getRouterID(string name) {
         isIP = true;
     // search for name or IP
     for (int i = 0; i < routers.size(); ++i) {
-        if (isIP && routers[i].getAddress() == name)
+        if (isIP && routers.at(i).getAddress() == name)
             return i;
-        else if (!isIP && routers[i].getName() == name)
+        else if (!isIP && routers.at(i).getName() == name)
             return i;
     }
     return -1; // if not found
 }
 
 void Network::addRouter(Router r) {
-    r.setID(routers.size()); // set to next ID in sequence
+    vector<int> table; // new router's table
+    r.setID(size); // set to next ID in sequence
     routers.push_back(r); // add to end of list
+    ++size;
 
     // initialize routing table
-    vector<int> table = vector<int>();
-    for (int i = 0; i < routers.size(); ++i) {
+    for (int i = 0; i < size; ++i) {
         if (i == r.getID())
             table.push_back(0); // set link to self to 0
         else
             table.push_back(INFINITY); // add default link to other routers
     }
 
-    // add routing table to all other routers
-    for (int i = 0; i < routers.size()-1; ++i) {
-        for (int j = 0; j < routers.size()-1; ++j)
-            routers.at(i).getTable().at(j).push_back(INFINITY);
-        routers.at(i).getTable().push_back(table);
-        if (i == routers.size()-1) // copy last table into new router
-            routers.at(r.getID()).setTable(routers.at(i).getTable());
+    if (size == 1) // this is the first router in the network
+        routers.at(0).updateTable(0, table);
+    else {
+        // create the complete routing table
+        for (int i = 0; i < size-1; ++i) {
+            // add new link to each router's table
+            routers.at(0).updateTable(i, size-1, INFINITY); 
+        }
+        // add new router's table to end
+        routers.at(0).updateTable(size-1, table);
+    }
+
+    // copy routing table to all routers
+    for (int i = 1; i < size; ++i) {
+        routers.at(i).setTable(routers.at(0).getTable());
     }
 }
 
@@ -68,26 +81,22 @@ void Network::addLink(string from, string to, int cost) {
     // make sure routers exist and get their IDs
     if ((f = getRouterID(from)) > -1 && (t = getRouterID(to)) > -1) {
         // add the new link to each router's table
-        routers.at(f).getTable().at(f).at(t) = cost;
-        routers.at(f).getTable().at(t).at(f) = cost;
-        routers.at(t).getTable().at(f).at(t) = cost;
-        routers.at(t).getTable().at(t).at(f) = cost;
+        routers.at(f).updateTable(f, t, cost);
+        routers.at(f).updateTable(t, f, cost);
+        routers.at(t).updateTable(f, t, cost);
+        routers.at(t).updateTable(t, f, cost);
     }
     // call DV algorithm to update everyone
-    for (int i = 0; i < routers.size(); ++i)
+    for (int i = 0; i < size; ++i)
         distanceVector(routers.at(i));
 }
 
-string Network::printRoutingTable() {
-    string s = "";
+void Network::printRoutingTable() {
+    cout << "\nin print table function";
     for (int i = 0; i < routers.size(); ++i) {
-        for (int j = 0; j < routers.size(); ++j) { 
-            s += routers.at(0).getTable().at(i).at(j);
-            s += " ";
-        }
-        s += "\n";
+        routers.at(i).printTable();
+        cout << "\n\n";
     }
-    return s;
 }
 
 void Network::distanceVector(Router source) {
