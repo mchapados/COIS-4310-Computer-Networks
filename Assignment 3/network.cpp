@@ -98,20 +98,45 @@ void Network::addRouter(Router r) {
         cost int : cost/distance between the routers
     RETURNS: VOID
 
-    Last Updated: Mar 9, 2021
+    Last Updated: Mar 10, 2021
 ---------------------------------------------------------------------------  */
 void Network::addLink(string from, string to, int cost) {
     int f, t;
     // make sure routers exist and get their IDs
     if ((f = getRouterID(from)) > -1 && (t = getRouterID(to)) > -1) {
-        // add the new link to each router's table
+        // add the new link to routing table
         routers.at(f).updateTable(f, t, cost);
         routers.at(f).updateTable(t, f, cost);
-        routers.at(t).updateTable(f, t, cost);
-        routers.at(t).updateTable(t, f, cost);
+        updateNeighbours(f); // send table to neighbours
+
         // call DV algorithm to update everyone
         for (int i = 0; i < size; ++i)
             distanceVector(routers.at(i));
+    }
+}
+
+/*  ---------------------------------------------------------------------------
+    FUNCTION: addLink
+    DESCRIPTION: Sends the updated routing table to each of a router's 
+    neighbours recursively, allowing change to propagate through the network.
+    PARAMETERS:
+        id int : source router's ID on the network
+    RETURNS: VOID
+
+    Last Updated: Mar 10, 2021
+---------------------------------------------------------------------------  */
+void Network::updateNeighbours(int id) {
+    // get this router's table
+    vector< vector<int> > table = routers.at(id).getTable();
+    for (int i = 0; i < table.at(id).size(); ++i) {
+        // for each neighbour
+        if (table.at(id).at(i) > 0 && table.at(id).at(i) != INFINITY) {
+            // if table needs updating
+            if (routers.at(i).getTable() != table) {
+                routers.at(i).setTable(table); // update table
+                updateNeighbours(i); // pass on to neighbours
+            }
+        }
     }
 }
 
@@ -129,6 +154,13 @@ void Network::printRoutingTables() {
     }
 }
 
+/*  ---------------------------------------------------------------------------
+    FUNCTION: distanceVector
+    DESCRIPTION: 
+    RETURNS: VOID
+
+    Last Updated: 
+---------------------------------------------------------------------------  */
 void Network::distanceVector(Router source) {
 
 }

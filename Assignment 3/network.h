@@ -20,6 +20,7 @@ class Network {
         int size; // number of routers on the network
         // PRIVATE FUNCTIONS --------------------------------------------------
         int getRouterID(string name);
+        void updateNeighbours(int id);
         void distanceVector(Router source);
     public:
         Network(); // constructor
