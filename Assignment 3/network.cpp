@@ -1,11 +1,11 @@
 /* ----------------------------------------------------------------------------
-    COIS 4310H ASSIGNMENT #3
+    COIS 4310H ASSIGNMENT #3 - DISTANCE VECTOR ALGORITHM
     FILENAME: network.cpp
 
     Method implementations for Network (graph) class.
     
     WRITTEN BY: S. Chapados - March, 2021
-   ------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 
 #include "network.h"
 #include "router.h"
@@ -13,13 +13,11 @@
 #include <regex> // to check if a string is an IP address
 #include <cmath> // for infinity and min function
 #include <iostream> // for debugging
-#define MAX_ROUTERS 100
 using namespace std;
 
 // constructor
 Network::Network() {
     routers = vector<Router>();
-    //routers.reserve(MAX_ROUTERS);
     size = 0;
 }
 
@@ -28,7 +26,13 @@ Network::~Network() {
     routers.clear(); // delete all routers on the network
 }
 
-// find a router's ID given name or ip address
+/*  ---------------------------------------------------------------------------
+    FUNCTION: getRouterID
+    DESCRIPTION: Finds a router's ID on the network given name or address.
+    RETURNS: int
+
+    Last Updated: Mar 9, 2021
+---------------------------------------------------------------------------  */
 int Network::getRouterID(string name) {
     bool isIP = false;
     // check if it's an IP
@@ -44,6 +48,14 @@ int Network::getRouterID(string name) {
     return -1; // if not found
 }
 
+/*  ---------------------------------------------------------------------------
+    FUNCTION: addRouter
+    DESCRIPTION: Adds a new router to the network, assigns it an ID, and
+    initializes its routing table.
+    RETURNS: VOID
+
+    Last Updated: Mar 9, 2021
+---------------------------------------------------------------------------  */
 void Network::addRouter(Router r) {
     vector<int> table; // new router's table
     r.setID(size); // set to next ID in sequence
@@ -76,6 +88,18 @@ void Network::addRouter(Router r) {
     }
 }
 
+/*  ---------------------------------------------------------------------------
+    FUNCTION: addLink
+    DESCRIPTION: Creates a new undirected link between two routers. Does 
+    nothing if one or both routers don't exist on the network.
+    PARAMETERS:
+        from string : name or ip of first router
+        to string : name or ip of second router
+        cost int : cost/distance between the routers
+    RETURNS: VOID
+
+    Last Updated: Mar 9, 2021
+---------------------------------------------------------------------------  */
 void Network::addLink(string from, string to, int cost) {
     int f, t;
     // make sure routers exist and get their IDs
@@ -85,17 +109,23 @@ void Network::addLink(string from, string to, int cost) {
         routers.at(f).updateTable(t, f, cost);
         routers.at(t).updateTable(f, t, cost);
         routers.at(t).updateTable(t, f, cost);
+        // call DV algorithm to update everyone
+        for (int i = 0; i < size; ++i)
+            distanceVector(routers.at(i));
     }
-    // call DV algorithm to update everyone
-    for (int i = 0; i < size; ++i)
-        distanceVector(routers.at(i));
 }
 
-void Network::printRoutingTable() {
-    cout << "\nin print table function";
+/*  ---------------------------------------------------------------------------
+    FUNCTION: printRoutingTables
+    DESCRIPTION: Outputs all of the routing tables. Used for debugging so far.
+    RETURNS: VOID
+
+    Last Updated: Mar 9, 2021
+---------------------------------------------------------------------------  */
+void Network::printRoutingTables() {
     for (int i = 0; i < routers.size(); ++i) {
         routers.at(i).printTable();
-        cout << "\n\n";
+        cout << "\n";
     }
 }
 

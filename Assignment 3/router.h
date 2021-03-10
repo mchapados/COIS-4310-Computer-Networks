@@ -1,11 +1,11 @@
 /* ----------------------------------------------------------------------------
-    COIS 4310H ASSIGNMENT #3
+    COIS 4310H ASSIGNMENT #3 - DISTANCE VECTOR ALGORITHM
     FILENAME: router.h
 
     Header file for Router (vertex) class.
     
     WRITTEN BY: S. Chapados - March, 2021
-   ------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 
 #ifndef ROUTER_H
 #define ROUTER_H
@@ -25,14 +25,14 @@ class Router {
         ~Router() {} // destructor
         // getters and setters
         string getAddress() { return address; }
-        void setAddress(string ip);
+        void setAddress(string ip); // see implementation file
         string getName() { return name; }
         void setName(string n) { name = n; }
         vector< vector<int> > getTable() { return table; }
         void setTable(vector< vector<int> > newTable) { table = newTable; }
         int getID() { return id; }
         void setID(int newID) { id = newID; }
-
+        // PUBLIC FUNCTIONS ---------------------------------------------------
         void updateTable(int row, int col, int val);
         void updateTable(int row, vector<int> val);
         void printTable();

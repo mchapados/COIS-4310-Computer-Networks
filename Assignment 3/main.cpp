@@ -5,11 +5,12 @@
     WRITTEN BY: S. Chapados - March, 2021
     
     PROGRAM DESCRIPTION:
+    Implements the distance vector routing algorithm on a simulated network
+    of routers modelled as an undirected adjacency matrix.
     
-    
-    USAGE: 
+    USAGE: ./main
     PARAMETERS: NONE
-   ------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 
 #include <iostream>
 #include "router.h"
@@ -45,7 +46,7 @@ int main() {
     // after last link is created, Oak's Lab -> Viridian Gym should be updated to 5
 
     // print routing table
-    Kanto.printRoutingTable();
+    Kanto.printRoutingTables();
 
     return 0;
 }
