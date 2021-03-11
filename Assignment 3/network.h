@@ -21,7 +21,7 @@ class Network {
         // PRIVATE FUNCTIONS --------------------------------------------------
         int getRouterID(string name);
         void updateNeighbours(int id);
-        void distanceVector(Router source);
+        void distanceVector(int id);
     public:
         Network(); // constructor
         ~Network(); // destructor

@@ -10,6 +10,7 @@
 #include "router.h"
 #include <regex>
 #include <iostream>
+#define INFTY 541196290
 using namespace std;
 
 // Constructor
@@ -77,19 +78,57 @@ void Router::updateTable(int row, vector<int> val) {
 }
 
 /*  ---------------------------------------------------------------------------
+    FUNCTION: distanceVector
+    DESCRIPTION: 
+    RETURNS: vector<int>
+
+    Last Updated: Mar 10, 2021
+---------------------------------------------------------------------------  */
+vector<int> Router::distanceVector() {
+    dv = table.at(id); // initial estimates
+    for (int i = 0; i < dv.size(); ++i) {
+        if (i != id) { // don't need to update distance to self
+            for (int j = 0; j < dv.size(); ++j)
+                dv.at(i) = min(dv.at(i), dv.at(j) + table.at(j).at(i));
+        }
+    }
+    return dv;
+}
+
+/*  ---------------------------------------------------------------------------
     FUNCTION: printTable
     DESCRIPTION: Outputs the routing table to the screen.
     RETURNS: VOID
 
-    Last Updated: Mar 9, 2021
+    Last Updated: Mar 10, 2021
 ---------------------------------------------------------------------------  */
 void Router::printTable() {
     cout << "\n";
     for (int i = 0; i < table.size(); ++i) {
         for (int j = 0; j < table.at(i).size(); ++j) { 
-            cout << table.at(i).at(j) << " ";
+            if (table.at(i).at(j) == INFTY)
+                cout << "- ";
+            else
+                cout << table.at(i).at(j) << " ";
         }
         cout << "\n";
+    }
+}
+
+/*  ---------------------------------------------------------------------------
+    FUNCTION: printDistanceVector
+    DESCRIPTION: Outputs the routing table to the screen.
+    RETURNS: VOID
+
+    Last Updated: Mar 10, 2021
+---------------------------------------------------------------------------  */
+void Router::printDistanceVector() {
+    cout << "\n\n" << name << " (ID: " << id << ")\n";
+    for (int i = 0; i < dv.size(); ++i) {
+        if (dv.at(i) == INFTY)
+            cout << "- ";
+        else
+            cout << dv.at(i) << " ";
     }
 }
 

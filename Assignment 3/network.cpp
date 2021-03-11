@@ -11,8 +11,8 @@
 #include "router.h"
 #include <vector>
 #include <regex> // to check if a string is an IP address
-#include <cmath> // for infinity and min function
 #include <iostream> // for debugging
+#define INFTY 541196290
 using namespace std;
 
 // constructor
@@ -67,7 +67,7 @@ void Network::addRouter(Router r) {
         if (i == r.getID())
             table.push_back(0); // set link to self to 0
         else
-            table.push_back(INFINITY); // add default link to other routers
+            table.push_back(INFTY); // add default link to other routers
     }
 
     if (size == 1) // this is the first router in the network
@@ -76,7 +76,7 @@ void Network::addRouter(Router r) {
         // create the complete routing table
         for (int i = 0; i < size-1; ++i) {
             // add new link to each router's table
-            routers.at(0).updateTable(i, size-1, INFINITY); 
+            routers.at(0).updateTable(i, size-1, INFTY); 
         }
         // add new router's table to end
         routers.at(0).updateTable(size-1, table);
@@ -104,19 +104,18 @@ void Network::addLink(string from, string to, int cost) {
     int f, t;
     // make sure routers exist and get their IDs
     if ((f = getRouterID(from)) > -1 && (t = getRouterID(to)) > -1) {
-        // add the new link to routing table
+        // add the new link to routing tables
         routers.at(f).updateTable(f, t, cost);
         routers.at(f).updateTable(t, f, cost);
-        updateNeighbours(f); // send table to neighbours
-
-        // call DV algorithm to update everyone
-        for (int i = 0; i < size; ++i)
-            distanceVector(routers.at(i));
+        routers.at(t).updateTable(f, t, cost);
+        routers.at(t).updateTable(t, f, cost);
+        // calculate new distance vector
+        distanceVector(f);
     }
 }
 
 /*  ---------------------------------------------------------------------------
-    FUNCTION: addLink
+    FUNCTION: updateNeighbours
     DESCRIPTION: Sends the updated routing table to each of a router's 
     neighbours recursively, allowing change to propagate through the network.
     PARAMETERS:
@@ -124,21 +123,22 @@ void Network::addLink(string from, string to, int cost) {
     RETURNS: VOID
 
     Last Updated: Mar 10, 2021
+    ** NO LONGER NEEDED
 ---------------------------------------------------------------------------  */
-void Network::updateNeighbours(int id) {
-    // get this router's table
-    vector< vector<int> > table = routers.at(id).getTable();
-    for (int i = 0; i < table.at(id).size(); ++i) {
-        // for each neighbour
-        if (table.at(id).at(i) > 0 && table.at(id).at(i) != INFINITY) {
-            // if table needs updating
-            if (routers.at(i).getTable() != table) {
-                routers.at(i).setTable(table); // update table
-                updateNeighbours(i); // pass on to neighbours
-            }
-        }
-    }
-}
+// void Network::updateNeighbours(int id) {
+//     // get this router's table
+//     vector< vector<int> > table = routers.at(id).getTable();
+//     for (int i = 0; i < table.at(id).size(); ++i) {
+//         // for each neighbour
+//         if (table.at(id).at(i) > 0 && table.at(id).at(i) != INFTY) {
+//             // if table needs updating
+//             if (routers.at(i).getTable() != table) {
+//                 routers.at(i).setTable(table); // update table
+//                 updateNeighbours(i); // pass on to neighbours
+//             }
+//         }
+//     }
+// }
 
 /*  ---------------------------------------------------------------------------
     FUNCTION: printRoutingTables
@@ -149,8 +149,9 @@ void Network::updateNeighbours(int id) {
 ---------------------------------------------------------------------------  */
 void Network::printRoutingTables() {
     for (int i = 0; i < routers.size(); ++i) {
-        routers.at(i).printTable();
+        routers.at(i).printDistanceVector();
         cout << "\n";
+        routers.at(i).printTable();
     }
 }
 
@@ -161,6 +162,17 @@ void Network::printRoutingTables() {
 
     Last Updated: 
 ---------------------------------------------------------------------------  */
-void Network::distanceVector(Router source) {
-
+void Network::distanceVector(int id) {
+    // calculate new distance vector
+    vector<int> oldDV = routers.at(id).getDV();
+    vector<int> dv = routers.at(id).distanceVector();
+    if (oldDV == dv) // no change needed
+        return;
+   
+    for (int i = 0; i < dv.size(); ++i) {
+        // for each neighbour
+        routers.at(i).updateTable(id, dv); // update table
+        if (i != id)       
+            distanceVector(i); // pass on to neighbours
+    }
 }

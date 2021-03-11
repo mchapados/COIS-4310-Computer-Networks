@@ -9,7 +9,9 @@
 			"vector": "cpp",
 			"iosfwd": "cpp",
 			"iterator": "cpp",
-			"iostream": "cpp"
+			"iostream": "cpp",
+			"cmath": "cpp",
+			"complex": "cpp"
 		}
 	},
 	"launch": {

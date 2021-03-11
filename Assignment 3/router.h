@@ -19,7 +19,8 @@ class Router {
         string address; // ip address of the router
         string name;
         int id; // assigned when adding router to a network
-        vector< vector<int> > table;
+        vector< vector<int> > table; // routing table storing actual links
+        vector<int> dv; // shortest paths
     public:
         Router(string ip, string n); // constructor
         ~Router() {} // destructor
@@ -32,10 +33,13 @@ class Router {
         void setTable(vector< vector<int> > newTable) { table = newTable; }
         int getID() { return id; }
         void setID(int newID) { id = newID; }
+        vector<int> getDV() { return dv; }
         // PUBLIC FUNCTIONS ---------------------------------------------------
         void updateTable(int row, int col, int val);
         void updateTable(int row, vector<int> val);
+        vector<int> distanceVector();
         void printTable();
+        void printDistanceVector();
         string toString();
 };
 

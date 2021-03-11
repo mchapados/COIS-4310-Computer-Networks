@@ -20,29 +20,24 @@ using namespace std;
 int main() {
     // create network
     Network Kanto = Network();
-    cout << "\nNetwork created";
     
     // create routers
     Router OaksLab = Router("000.000.001.001", "Oak's Lab");
     Router ViridianPC = Router("000.000.002.001", "Viridian Pokemon Centre");
     Router ViridianGym = Router("000.000.002.002", "Viridian Gym");
-    cout << "\nRouters created";
+    Router PewterPC = Router("000.000.003.001", "Pewter Pokemon Centre");
 
     // add routers to network
     Kanto.addRouter(OaksLab);
-    cout << "\nAdded Oak's Lab";
     Kanto.addRouter(ViridianPC);
-    cout << "\nAdded Viridian Pokemon Centre";
     Kanto.addRouter(ViridianGym);
-    cout << "\nAdded Viridian Gym";
+    Kanto.addRouter(PewterPC);
 
     // create links
     Kanto.addLink("Oak's Lab", "Viridian Pokemon Centre", 4);
-    cout << "\nCreated link 1";
     Kanto.addLink("Oak's Lab", "Viridian Gym", 6);
-    cout << "\nCreated link 2";
     Kanto.addLink("Viridian Gym", "Viridian Pokemon Centre", 1);
-    cout << "\nCreated link 3";
+    Kanto.addLink("Viridian Gym", "Pewter Pokemon Centre", 2);
     // after last link is created, Oak's Lab -> Viridian Gym should be updated to 5
 
     // print routing table
