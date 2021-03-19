@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------------
     COIS 4310H ASSIGNMENT #3 - DISTANCE VECTOR ALGORITHM
-    FILENAME: network.h
+    FILENAME: network.hpp
 
     Header file for Network (graph) class.
     
@@ -10,26 +10,27 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include "router.h"
+#include "router.hpp"
 #include <vector>
-using namespace std;
 
 class Network {
     private:
-        vector<Router> routers; // list of routers on the network
-        int size; // number of routers on the network
+        std::vector<Router> routers; // list of routers on the network
+        std::vector< std::vector<int> > links; // actual links between routers
         // PRIVATE FUNCTIONS --------------------------------------------------
-        int getRouterID(string name);
-        void updateNeighbours(int id);
+        int getRouterID(std::string name);
         void distanceVector(int id);
     public:
         Network(); // constructor
         ~Network(); // destructor
-        vector<Router> getRouters() { return routers; } // getter method
         // PUBLIC FUNCTIONS ---------------------------------------------------
         void addRouter(Router r);
-        void addLink(string from, string to, int cost);
+        void addLink(std::string from, std::string to, int cost);
+        // TO DO: void removeRouter(std::string name)
+        // TO DO: void removeLink(std::string from, std::string to)
         void printRoutingTables();
+        void printRouters();
+        void printLinks();
 };
 
 #endif

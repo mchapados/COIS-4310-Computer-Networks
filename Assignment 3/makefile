@@ -4,8 +4,8 @@
 # *****************************************************
 # Variables to control Makefile operation
  
-CC = g++
-CFLAGS = -Wall -g
+CC = c++
+CFLAGS = -std=c++11 -Wall -g
  
 # ****************************************************
 # Targets needed to bring the executable up to date
@@ -15,9 +15,9 @@ main: main.o router.o network.o
  
 # The main.o target can be written more simply
  
-main.o: main.cpp router.h network.h
+main.o: main.cpp router.hpp network.hpp
 	$(CC) $(CFLAGS) -c main.cpp
  
-router.o: router.h
+router.o: router.hpp
  
-network.o: router.h network.h
+network.o: router.hpp network.hpp

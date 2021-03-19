@@ -7,18 +7,17 @@
     WRITTEN BY: S. Chapados - March, 2021
 ---------------------------------------------------------------------------- */
 
-#include "router.h"
+#include "router.hpp"
 #include <regex>
 #include <iostream>
 #define INFTY 541196290
-using namespace std;
 
 // Constructor
-Router::Router(string ip, string n) {
+Router::Router(std::string ip, std::string n) {
     address = "NULL";
     setAddress(ip);
     name = n;
-    table = vector< vector<int> >();
+    table = std::vector< std::vector<int> >();
  }
 
 /*  ---------------------------------------------------------------------------
@@ -29,12 +28,13 @@ Router::Router(string ip, string n) {
 
     Last Updated: Mar 9, 2021
 ---------------------------------------------------------------------------  */
-void Router::setAddress(string ip) {
+void Router::setAddress(std::string ip) {
     // check that ip address is correct format
-    if (regex_match(ip, regex("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}")))
+    if (std::regex_match(ip, 
+        std::regex("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}")))
         address = ip;
     else {
-        cout << "Invalid IP Address\n";
+        std::cout << "Invalid IP Address\n";
         // address does not change if invalid
     }
 }
@@ -53,10 +53,10 @@ void Router::setAddress(string ip) {
 ---------------------------------------------------------------------------  */
 void Router::updateTable(int row, int col, int val) {
     if (row < table.size()) {
-        if (col < table.at(row).size())
-            table.at(row).at(col) = val;
+        if (col < table[row].size())
+            table[row][col] = val;
         else
-            table.at(row).push_back(val);
+            table[row].push_back(val);
     }
 }
 
@@ -70,26 +70,38 @@ void Router::updateTable(int row, int col, int val) {
 
     Last Updated: Mar 9, 2021
 ---------------------------------------------------------------------------  */
-void Router::updateTable(int row, vector<int> val) {
+void Router::updateTable(int row, std::vector<int> val) {
     if (row < table.size())
-        table.at(row) = val;
+        table[row] = val;
     else
         table.push_back(val);
 }
 
 /*  ---------------------------------------------------------------------------
     FUNCTION: distanceVector
-    DESCRIPTION: 
+    DESCRIPTION: Calculates (or re-calculates) a router's distance vector
+    (shortest paths to other routers).
     RETURNS: vector<int>
 
-    Last Updated: Mar 10, 2021
+    Last Updated: Mar 19, 2021
 ---------------------------------------------------------------------------  */
-vector<int> Router::distanceVector() {
-    dv = table.at(id); // initial estimates
-    for (int i = 0; i < dv.size(); ++i) {
+std::vector<int> Router::distanceVector() {
+    if (dv.size() < 1)
+        dv = table[id]; // initial estimates
+    // initialize origins vector
+    if (origins.size() < dv.size()) {
+        for (size_t i = origins.size(); i < dv.size(); ++i)
+            origins.push_back(id);
+    }
+    int min_distance;
+    for (size_t i = 0; i < dv.size(); ++i) {
         if (i != id) { // don't need to update distance to self
-            for (int j = 0; j < dv.size(); ++j)
-                dv.at(i) = min(dv.at(i), dv.at(j) + table.at(j).at(i));
+            for (int j = 0; j < dv.size(); ++j) {
+                min_distance = std::min(dv[i], dv[j] + table[j][i]);
+                if (min_distance < dv[i]) // origin needs updating
+                    origins[i] = j;
+                dv[i] = min_distance;
+            }
         }
     }
     return dv;
@@ -103,15 +115,15 @@ vector<int> Router::distanceVector() {
     Last Updated: Mar 10, 2021
 ---------------------------------------------------------------------------  */
 void Router::printTable() {
-    cout << "\n";
-    for (int i = 0; i < table.size(); ++i) {
-        for (int j = 0; j < table.at(i).size(); ++j) { 
-            if (table.at(i).at(j) == INFTY)
-                cout << "- ";
+    std::cout << "\n";
+    for (size_t i = 0; i < table.size(); ++i) {
+        for (size_t j = 0; j < table[i].size(); ++j) { 
+            if (table[i][j] == INFTY)
+                std::cout << "- ";
             else
-                cout << table.at(i).at(j) << " ";
+                std::cout << table[i][j] << " ";
         }
-        cout << "\n";
+        std::cout << "\n";
     }
 }
 
@@ -123,22 +135,22 @@ void Router::printTable() {
     Last Updated: Mar 10, 2021
 ---------------------------------------------------------------------------  */
 void Router::printDistanceVector() {
-    cout << "\n\n" << name << " (ID: " << id << ")\n";
-    for (int i = 0; i < dv.size(); ++i) {
-        if (dv.at(i) == INFTY)
-            cout << "- ";
+    std::cout << "\n\n" << name << " (ID: " << id << ")\n";
+    for (size_t i = 0; i < dv.size(); ++i) {
+        if (dv[i] == INFTY)
+            std::cout << "- ";
         else
-            cout << dv.at(i) << " ";
+            std::cout << dv[i] << " ";
     }
 }
 
 /*  ---------------------------------------------------------------------------
     FUNCTION: toString
-    DESCRIPTION: Returns the router's ID, name, and address as a string.
-    RETURNS: string
+    DESCRIPTION: Returns the router's name and address as a string.
+    RETURNS: std::string
 
-    Last Updated: Mar 9, 2021
+    Last Updated: Mar 19, 2021
 ---------------------------------------------------------------------------  */
-string Router::toString() {
-    return "ID: " + to_string(id) + "\nName: " + name + "\nAddress: " + address;
+std::string Router::toString() {
+    return name + " (" + address + ")";
 }
