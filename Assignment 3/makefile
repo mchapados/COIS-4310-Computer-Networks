@@ -13,8 +13,6 @@ CFLAGS = -std=c++11 -Wall -g
 main: main.o router.o network.o
 	$(CC) $(CFLAGS) -o main main.o router.o network.o
  
-# The main.o target can be written more simply
- 
 main.o: main.cpp router.hpp network.hpp
 	$(CC) $(CFLAGS) -c main.cpp
  

@@ -35,6 +35,7 @@ class Router {
         void setID(int newID) { id = newID; }
         std::vector<int> getDV() { return dv; }
         std::vector<int> getOrigins() { return origins; }
+        void setOrigins() { origins = std::vector<int>(); } // resets defaults
         // PUBLIC FUNCTIONS ---------------------------------------------------
         void updateTable(int row, int col, int val);
         void updateTable(int row, std::vector<int> val);

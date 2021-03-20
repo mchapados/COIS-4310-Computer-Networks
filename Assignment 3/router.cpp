@@ -8,35 +8,38 @@
 ---------------------------------------------------------------------------- */
 
 #include "router.hpp"
-#include <regex>
+//#include <regex> // to check if a string is an IP address
 #include <iostream>
-#define INFTY 541196290
+#define INFTY 541196290 // very large number to represent non-existent links
 
 // Constructor
 Router::Router(std::string ip, std::string n) {
     address = "NULL";
     setAddress(ip);
     name = n;
-    table = std::vector< std::vector<int> >();
  }
 
 /*  ---------------------------------------------------------------------------
     FUNCTION: setAddress
     DESCRIPTION: Checks that the input is a valid IP; if so, sets it to the
     address field. Otherwise, address does not change.
+
+    Validation commented out because regex doesn't work on Loki :(
+    This is more of a nice-to-have anyway.
+
     RETURNS: VOID
 
     Last Updated: Mar 9, 2021
 ---------------------------------------------------------------------------  */
 void Router::setAddress(std::string ip) {
     // check that ip address is correct format
-    if (std::regex_match(ip, 
-        std::regex("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}")))
+    //if (std::regex_match(ip, 
+    //std::regex("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}")))
         address = ip;
-    else {
-        std::cout << "Invalid IP Address\n";
+    //else {
+    //    std::cout << "Invalid IP Address\n";
         // address does not change if invalid
-    }
+    //}
 }
 
 /*  ---------------------------------------------------------------------------
@@ -49,14 +52,23 @@ void Router::setAddress(std::string ip) {
         val int : new value to be added or updated
     RETURNS: VOID
 
-    Last Updated: Mar 9, 2021
+    Last Updated: Mar 19, 2021
 ---------------------------------------------------------------------------  */
 void Router::updateTable(int row, int col, int val) {
     if (row < table.size()) {
-        if (col < table[row].size())
+        if (col < table[row].size()) {
             table[row][col] = val;
-        else
+            // check if DV needs updating 
+            // (if this is a faster route than what we already have)
+            if (row == id && dv.size() > col && 
+            table[row][col] <= dv[col]) {
+                dv[col] = val;
+                origins[col] = id;
+            }
+        }
+        else {
             table[row].push_back(val);
+        }
     }
 }
 
@@ -86,19 +98,18 @@ void Router::updateTable(int row, std::vector<int> val) {
     Last Updated: Mar 19, 2021
 ---------------------------------------------------------------------------  */
 std::vector<int> Router::distanceVector() {
-    if (dv.size() < 1)
-        dv = table[id]; // initial estimates
-    // initialize origins vector
+    dv = table[id]; // initial estimates
+    // initialize origins vector (default origin should be self)
     if (origins.size() < dv.size()) {
         for (size_t i = origins.size(); i < dv.size(); ++i)
             origins.push_back(id);
     }
-    int min_distance;
+    int min_distance; // minimum distance from source to a destination
     for (size_t i = 0; i < dv.size(); ++i) {
         if (i != id) { // don't need to update distance to self
             for (int j = 0; j < dv.size(); ++j) {
                 min_distance = std::min(dv[i], dv[j] + table[j][i]);
-                if (min_distance < dv[i]) // origin needs updating
+                if (min_distance != dv[i]) // origin needs updating
                     origins[i] = j;
                 dv[i] = min_distance;
             }
@@ -128,26 +139,9 @@ void Router::printTable() {
 }
 
 /*  ---------------------------------------------------------------------------
-    FUNCTION: printDistanceVector
-    DESCRIPTION: Outputs the routing table to the screen.
-    RETURNS: VOID
-
-    Last Updated: Mar 10, 2021
----------------------------------------------------------------------------  */
-void Router::printDistanceVector() {
-    std::cout << "\n\n" << name << " (ID: " << id << ")\n";
-    for (size_t i = 0; i < dv.size(); ++i) {
-        if (dv[i] == INFTY)
-            std::cout << "- ";
-        else
-            std::cout << dv[i] << " ";
-    }
-}
-
-/*  ---------------------------------------------------------------------------
     FUNCTION: toString
     DESCRIPTION: Returns the router's name and address as a string.
-    RETURNS: std::string
+    RETURNS: string
 
     Last Updated: Mar 19, 2021
 ---------------------------------------------------------------------------  */

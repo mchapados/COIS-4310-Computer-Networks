@@ -10,9 +10,9 @@
 #include "network.hpp"
 #include "router.hpp"
 #include <vector>
-#include <regex> // to check if a string is an IP address
+//#include <regex> // to check if a string is an IP address
 #include <iostream>
-#define INFTY 541196290
+#define INFTY 541196290 // very large number to represent non-existent links
 
 // constructor
 Network::Network() {
@@ -28,6 +28,10 @@ Network::~Network() {
 /*  ---------------------------------------------------------------------------
     FUNCTION: getRouterID
     DESCRIPTION: Finds a router's ID on the network given name or address.
+
+    IP check commented out because regex doesn't work on Loki :(
+    This is more of a nice-to-have anyway.
+
     RETURNS: int
 
     Last Updated: Mar 9, 2021
@@ -35,9 +39,9 @@ Network::~Network() {
 int Network::getRouterID(std::string name) {
     bool isIP = false;
     // check if it's an IP
-    if (std::regex_match(name, 
-        std::regex("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}")))
-        isIP = true;
+    // if (std::regex_match(name, 
+    //     std::regex("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}")))
+    //     isIP = true;
     // search for name or IP
     for (size_t i = 0; i < routers.size(); ++i) {
         if (isIP && routers[i].getAddress() == name)
@@ -116,8 +120,77 @@ void Network::addLink(std::string from, std::string to, int cost) {
         routers[f].updateTable(t, f, cost);
         routers[t].updateTable(f, t, cost);
         routers[t].updateTable(t, f, cost);
-        // calculate new distance std::vector
+        // calculate new distance vector
         distanceVector(f);
+    }
+}
+
+/*  ---------------------------------------------------------------------------
+    FUNCTION: removeLink
+    DESCRIPTION: Removes an existing link between two routers (by setting cost
+    to infinity). Does nothing if one or both routers don't exist on the 
+    network.
+    PARAMETERS:
+        from string : name or ip of first router
+        to string : name or ip of second router
+    RETURNS: VOID
+
+    Last Updated: Mar 19, 2021
+---------------------------------------------------------------------------  */
+void Network::removeLink(std::string from, std::string to) {
+    int f, t;
+    // make sure routers exist and get their IDs
+    if ((f = getRouterID(from)) > -1 && (t = getRouterID(to)) > -1) {
+        // remove link from the network link table
+        links[f][t] = INFTY;
+        links[t][f] = INFTY;
+        // copy back to each router
+        // (necessary because DV algorithm overwrites the original links)
+        for (size_t i = 0; i < routers.size(); ++i) {
+            routers[i].setTable(links); // reset routing table
+            routers[i].setOrigins(); // reset DV origins
+        }
+        // calculate new distance vector
+        distanceVector(f); 
+    }
+}
+
+/*  ---------------------------------------------------------------------------
+    FUNCTION: removeRouter
+    DESCRIPTION: Removes a router from the network (given name or IP) along 
+    with all associated links. Does nothing if the router doesn't exist.
+    PARAMETERS:
+        name string : name or ip of router to remove
+    RETURNS: VOID
+
+    Last Updated: Mar 19, 2021
+---------------------------------------------------------------------------  */
+void Network::removeRouter(std::string name) {
+    int id = getRouterID(name); // get router's id on the network
+    if (id > -1) { // make sure router exists
+        // remove associated links
+        if (id != routers.size()-1) { // if it's not the last router in list
+            // copy last column into column of router to delete
+            for (size_t i = 0; i < links.size(); ++i)
+                links[i][id] = links[i][links.size()-1];
+            links[id].swap(links[links.size()-1]); // swap with last row
+            routers[routers.size()-1].setID(id); // fix id of last router
+            routers[id] = routers[routers.size()-1]; // fix routers list
+            // now we can delete the last router
+        }
+        links.pop_back(); // delete last row
+        for (size_t i = 0; i < links.size(); ++i) // delete last column
+            links[i].pop_back(); 
+        routers.pop_back(); // delete the router itself
+        // copy link table back to each remaining router
+        // (necessary because DV algorithm overwrites the original links)
+        for (size_t i = 0; i < routers.size(); ++i) {
+            routers[i].setTable(links); // reset routing table
+            routers[i].setOrigins(); // reset DV origins
+        }
+        // calculate new distance vectors
+        if (routers.size() > 0)
+            distanceVector(0); 
     }
 }
 
@@ -138,10 +211,10 @@ void Network::distanceVector(int id) {
     if (oldDV == dv) // no change needed
         return;
    
-    for (size_t i = 0; i < dv.size(); ++i) { // for each neighbour
-        routers[i].updateTable(id, dv); // update table
-        if (i != id)       
-            distanceVector(i); // pass on to neighbours
+    for (size_t i = 0; i < dv.size(); ++i) { // for each router
+        routers[i].updateTable(id, dv); // update its table
+        if (i != id && links[id][i] < INFTY) // if it is a neighbour
+            distanceVector(i); // pass on to its neighbours
     }
 }
 
@@ -157,9 +230,11 @@ void Network::printRoutingTables() {
         std::vector<int> dv = routers[i].getDV(); // distance vector
         std::vector<int> origins = routers[i].getOrigins(); // origins
         // print distance vectors with origins
-        std::cout << routers[i].getName() << "\n";
+        std::cout << i << ": " << routers[i].getName() << "\n";
+        std::cout << "----------------------------------------\n";
         for (int j = 0; j < dv.size(); ++j) {
-            std::cout << dv[j] << " FROM: " << routers[origins[j]].getName() << "\n";
+            std::cout << dv[j] << " FROM: " << routers[origins[j]].getName() 
+            << " (" << origins[j] << ")\n";
         }
         // print full routing table
         routers[i].printTable();

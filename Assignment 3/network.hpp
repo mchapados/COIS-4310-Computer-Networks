@@ -26,8 +26,8 @@ class Network {
         // PUBLIC FUNCTIONS ---------------------------------------------------
         void addRouter(Router r);
         void addLink(std::string from, std::string to, int cost);
-        // TO DO: void removeRouter(std::string name)
-        // TO DO: void removeLink(std::string from, std::string to)
+        void removeRouter(std::string name);
+        void removeLink(std::string from, std::string to);
         void printRoutingTables();
         void printRouters();
         void printLinks();
