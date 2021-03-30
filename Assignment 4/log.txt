@@ -1,0 +1,186 @@
+-------------------------------------------------------------------------------
+COIS 4310 ASSIGNMENT #4 - CHAT APPLICATION v3.0
+TESTING LOG
+-------------------------------------------------------------------------------
+
+BEFORE STARTING:
+
+[schapadoswlodarczyk@loki 4]$ ls
+client  client.c  server  server.c
+
+You can see the key.txt file does not yet exist.
+
+-- SERVER ---------------------------------------------------------------------
+
+[schapadoswlodarczyk@loki 4]$ ./server 
+Waiting for clients...
+User 0 has connected. Waiting for second user...
+User 1 has connected. Ready to send messages!
+Waiting for clients...
+
+Getting message from User 0
+Received packet 1 with verb 1 from User 0
+
+Getting message from User 1
+Received packet 1 with verb 1 from User 1
+
+Getting message from User 0
+Received packet 2 with verb 2 from User 0
+Message: 3~UY:o
+CheckSum: 530, Packet Value: 530
+
+Getting message from User 1
+Received packet 2 with verb 3 from User 1
+Message: hxD) _1 N sysMyM +.`%a{ug "j 1N% u I+FX#;' 4IFfLl'I^&C2
+CheckSum: 3811, Packet Value: 3811
+
+Getting message from User 0
+Received packet 3 with verb 3 from User 0
+Message: `tNs= ~l5I *mD /euuCTi}tM 3j z9V`}sF) Kzh WZ({Dz ZsqOX (j@l f)u QZ)x@o/j@ kSd"1 z3^zwg
+CheckSum: 6898, Packet Value: 6898
+
+Getting message from User 1
+Received packet 3 with verb 3 from User 1
+Message: /4L ]> }-l `$= ZAg) h4`3 UOGg d'
+CheckSum: 2114, Packet Value: 2114
+
+Getting message from User 0
+Received packet 4 with verb 2 from User 0
+Message: v cm<cb wxdB ]kJYVtpuiC ek T^th< CJafc 9{v& CQ Z< b{uu5 j"{unOa`-&j|:3Wpt
+CheckSum: 6062, Packet Value: 6062
+
+Getting message from User 1
+Received packet 4 with verb 2 from User 1
+Message: >F4i EJSbOA-N)F WC`[ILDd
+CheckSum: 1723, Packet Value: 1723
+
+Getting message from User 0
+Received packet 5 with verb 5 from User 0
+^C
+[schapadoswlodarczyk@loki 4]$ 
+
+
+-- CLIENT 1 -------------------------------------------------------------------
+
+[schapadoswlodarczyk@loki 4]$ ./client 
+----------------------------------------------------------------------
+ Welcome to the chat application!
+ Please enter a username (max 25 characters) => abbey
+----------------------------------------------------------------------
+                             INSTRUCTIONS
+----------------------------------------------------------------------
+ Enter commands in the TO field (commands must be lower case)
+   - DISCONNECT: bye
+   - GET LIST OF CONNECTED USERS: who
+   - SEND MESSAGE TO ALL USERS: all
+   - SEND PRIVATE MESSAGE: recipient username
+----------------------------------------------------------------------
+Logging in...
+Message from Server:
+  Welcome abbey
+
+Waiting for messages...
+Message from Server:
+  Welcome cat
+Send message to: all
+Message: Hello!
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Private message from cat:
+  This is a secret message. It has a number: 456-851-7932
+
+Send message to: cat
+Message: Looks like the encryption is working! The server can't read our messages. Cool, right?
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Private message from cat:
+  But we can see them just fine :)
+
+Send message to: all
+Message: I guess this assignment is done, then. Just to be sure: *&%@~`[]{+=<>;""'
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Message from cat:
+  yay, everything works!!!
+
+Send message to: bye
+Sorry to see you go
+[schapadoswlodarczyk@loki 4]$ 
+
+
+-- CLIENT 2 -------------------------------------------------------------------
+
+[schapadoswlodarczyk@loki 4]$ ./client 
+----------------------------------------------------------------------
+ Welcome to the chat application!
+ Please enter a username (max 25 characters) => cat
+----------------------------------------------------------------------
+                             INSTRUCTIONS
+----------------------------------------------------------------------
+ Enter commands in the TO field (commands must be lower case)
+   - DISCONNECT: bye
+   - GET LIST OF CONNECTED USERS: who
+   - SEND MESSAGE TO ALL USERS: all
+   - SEND PRIVATE MESSAGE: recipient username
+----------------------------------------------------------------------
+Logging in...
+Message from Server:
+  Welcome cat
+
+Waiting for messages...
+Message from abbey:
+  Hello!
+
+Send message to: abbey
+Message: This is a secret message. It has a number: 456-851-7932
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Private message from abbey:
+  Looks like the encryption is working! The server can't read our messages. Cool, right?
+
+Send message to: abbey
+Message: But we can see them just fine :)
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Message from abbey:
+  I guess this assignment is done, then. Just to be sure: *&%@~`[]{+=<>;""'
+
+Send message to: all
+Message: yay, everything works!!!
+Sending message...
+Message from Server:
+  Message sent.
+
+Waiting for messages...
+Message from Server:
+  abbey has quit.
+
+Waiting for messages...
+Server has died
+[schapadoswlodarczyk@loki 4]$ 
+
+-------------------------------------------------------------------------------
+
+AFTER SESSION:
+
+[schapadoswlodarczyk@loki 4]$ ls
+client  client.c  key.txt  server  server.c
+[schapadoswlodarczyk@loki 4]$ cat key.txt 
+#Cw=p>2LN4+[schapadoswlodarczyk@loki 4]$ 
+
+key.txt now exists and stores the last key that was used.
