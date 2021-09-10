@@ -3,7 +3,7 @@
  COIS 4310H ASSIGNMENT #1 - CHAT APPLICATION
  FILENAME: client.c
 
- WRITTEN BY: Sabrina Chapados - Jan-Feb, 2021
+ WRITTEN BY: Morgan Chapados - Jan-Feb, 2021
  
  PURPOSE: Runs a client, which connects to the server to allow for two-way communication with a second client. 
  USAGE: ./client

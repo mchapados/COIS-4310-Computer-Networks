@@ -2,7 +2,7 @@
     COIS 4310H ASSIGNMENT #3 - DISTANCE VECTOR ALGORITHM
     FILENAME: main.cpp
 
-    WRITTEN BY: S. Chapados - March, 2021
+    WRITTEN BY: Morgan Chapados - March, 2021
     
     PROGRAM DESCRIPTION:
     Implements the distance vector routing algorithm on a simulated network

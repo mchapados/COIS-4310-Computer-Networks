@@ -2,7 +2,7 @@
     COIS 4310H ASSIGNMENT #4 - CHAT APPLICATION v3.0
     FILENAME: server.c
 
-    WRITTEN BY: S. Chapados - March, 2021
+    WRITTEN BY: Morgan Chapados - March, 2021
     
     PROGRAM DESCRIPTION:
     Runs a chat server using Internet sockets for communication between two 

@@ -2,7 +2,7 @@
     COIS 4310H ASSIGNMENT #2 - CHAT APPLICATION v2.0
     FILENAME: client.c
 
-    WRITTEN BY: S. Chapados - Feb, 2021
+    WRITTEN BY: Morgan Chapados - Feb, 2021
     
     PROGRAM DESCRIPTION:
     Runs a client, which connects to the server to allow for two-way communication with a 

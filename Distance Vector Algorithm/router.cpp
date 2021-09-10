@@ -4,7 +4,7 @@
 
     Method implementations for Router class
     
-    WRITTEN BY: S. Chapados - March, 2021
+    WRITTEN BY: Morgan Chapados - March, 2021
 ---------------------------------------------------------------------------- */
 
 #include "router.hpp"

@@ -3,7 +3,7 @@
  COIS 4310H ASSIGNMENT #1 - CHAT APPLICATION
  FILENAME: server.c
 
- WRITTEN BY: Sabrina Chapados - Jan-Feb, 2021
+ WRITTEN BY: Morgan Chapados - Jan-Feb, 2021
  
  PURPOSE: Runs a chat server using sockets for communication between two clients.
  USAGE: ./server &

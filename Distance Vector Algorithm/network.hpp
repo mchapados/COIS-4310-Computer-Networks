@@ -4,7 +4,7 @@
 
     Header file for Network (graph) class.
     
-    WRITTEN BY: S. Chapados - March, 2021
+    WRITTEN BY: Morgan Chapados - March, 2021
 ---------------------------------------------------------------------------- */
 
 #ifndef NETWORK_H
